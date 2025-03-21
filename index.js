@@ -82,5 +82,23 @@ app.get("/flavors/:id", async (req, res) => {
     res.json(response.rows[0]);
 });
 
+// POST /flavors route
+app.post("/flavors", async (req, res) => {
+  try {
+    const { name, is_favorite } = req.body;
+
+    const SQL = `
+      INSERT INTO flavors (name, is_favorite) 
+      VALUES ($1, $2) 
+      RETURNING *;`;
+
+    const response = await client.query(SQL, [name, is_favorite || false]);
+    const newFlavor = response.rows[0];
+    res.status(201).json(newFlavor);
+  } catch (error) {
+    console.error("Error adding flavor:", error);
+    res.status(500).send(error.message);
+  }
+});
 
 init();
